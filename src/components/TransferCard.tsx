@@ -212,8 +212,10 @@ export default function TransferCard() {
     const currentWallet = wallet;
     
     // Check adapter's internal connection state FIRST - this is what sendTransaction checks
-    if (currentWallet.adapter) {
-      const adapter = currentWallet.adapter as any;
+    // Use type assertion to access adapter property which exists but isn't in public types
+    const walletWithAdapter = currentWallet as any;
+    if (walletWithAdapter.adapter) {
+      const adapter = walletWithAdapter.adapter;
       
       // The adapter's connected property is what sendTransaction checks internally
       if (adapter.connected === false) {
