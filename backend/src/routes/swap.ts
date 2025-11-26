@@ -16,6 +16,13 @@ const privacyService = USE_ENHANCED_PRIVACY
 const swapController = new SwapController(walletService, privacyService);
 
 // Routes
+// Handle OPTIONS for CORS preflight
+router.options('/prepare', (req, res) => {
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.sendStatus(200);
+});
+
 router.post('/prepare', (req, res) => swapController.prepareSwap(req, res));
 router.post('/initiate', (req, res) => swapController.initiateSwap(req, res));
 router.get('/status/:transactionId', (req, res) => swapController.getSwapStatus(req, res));

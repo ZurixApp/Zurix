@@ -31,14 +31,21 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Request logging middleware
+// Request logging middleware (before routes)
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'none'}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - Origin: ${req.headers.origin || 'none'}`);
   next();
 });
 
-// Explicitly handle OPTIONS requests for all routes
-app.options('*', cors(corsOptions));
+// Explicitly handle OPTIONS requests for all routes (before other routes)
+app.options('*', (req, res) => {
+  console.log(`OPTIONS request for ${req.path}`);
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
 
 // Routes
 app.use('/api/swap', swapRoutes);
@@ -90,6 +97,20 @@ async function startServer() {
       console.log(`   GET  /api/swap/recovery/:transactionId (check recovery)`);
       console.log(`   POST /api/swap/recovery/:transactionId (execute recovery)`);
       console.log(`   GET  /api/swap/memo/:transactionId (get encrypted memo)`);
+    });
+    
+    // Catch-all for undefined routes (after all routes)
+    app.use((req, res) => {
+      if (req.path.startsWith('/api/')) {
+        console.log(`⚠️ Route not found: ${req.method} ${req.path}`);
+        res.status(404).json({ 
+          error: 'Route not found', 
+          method: req.method, 
+          path: req.path 
+        });
+      } else {
+        res.status(404).json({ error: 'Not found' });
+      }
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
