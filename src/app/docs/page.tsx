@@ -110,7 +110,14 @@ export default function DocsPage() {
           <div className="hidden md:flex space-x-8 text-[11px] tracking-[0.2em] font-medium uppercase">
             <a href="/" className="text-gray-400 hover:text-white transition-colors duration-300">Home</a>
             <a href="/docs" className="text-wine-500">Docs</a>
-            <a href="https://github.com" className="text-gray-400 hover:text-white transition-colors duration-300">GitHub</a>
+            <a 
+              href="https://github.com/ZurixApp/Zurix" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-white transition-colors duration-300"
+            >
+              GitHub
+            </a>
           </div>
         </div>
       </nav>
