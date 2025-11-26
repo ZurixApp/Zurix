@@ -207,7 +207,10 @@ export default function TransferCard() {
   }, []);
 
   // Helper function to verify wallet connection state
-  const verifyWalletConnection = (): { publicKey: PublicKey } => {
+  const verifyWalletConnection = (): { 
+    publicKey: PublicKey; 
+    sendTransaction: typeof wallet.sendTransaction;
+  } => {
     // Get the absolute latest wallet state
     const currentWallet = wallet;
     
@@ -247,6 +250,7 @@ export default function TransferCard() {
     
     return {
       publicKey: currentWallet.publicKey,
+      sendTransaction: currentWallet.sendTransaction,
     };
   };
 
