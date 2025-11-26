@@ -83,9 +83,10 @@ export async function encryptMemo(
   const iv = crypto.getRandomValues(new Uint8Array(16));
   
   // Import key
+  const keyBytes = new TextEncoder().encode(encryptionKey);
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(encryptionKey),
+    keyBytes as BufferSource,
     { name: 'PBKDF2' },
     false,
     ['deriveBits', 'deriveKey']
@@ -94,7 +95,7 @@ export async function encryptMemo(
   const key = await crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: iv,
+      salt: iv as BufferSource,
       iterations: 100000,
       hash: 'SHA-256',
     },
@@ -105,13 +106,14 @@ export async function encryptMemo(
   );
   
   // Encrypt
+  const dataBytes = new TextEncoder().encode(JSON.stringify(data));
   const encrypted = await crypto.subtle.encrypt(
     {
       name: 'AES-GCM',
       iv: iv,
     },
     key,
-    new TextEncoder().encode(JSON.stringify(data))
+    dataBytes as BufferSource
   );
   
   // Combine IV + encrypted data
@@ -146,9 +148,10 @@ export async function decryptMemo(
   const encrypted = combined.slice(16);
   
   // Import and derive key
+  const keyBytes = new TextEncoder().encode(encryptionKey);
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
-    new TextEncoder().encode(encryptionKey),
+    keyBytes as BufferSource,
     { name: 'PBKDF2' },
     false,
     ['deriveKey']
@@ -157,7 +160,7 @@ export async function decryptMemo(
   const key = await crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: iv,
+      salt: iv as BufferSource,
       iterations: metadata.iterations || 100000,
       hash: 'SHA-256',
     },
@@ -174,7 +177,7 @@ export async function decryptMemo(
       iv: iv,
     },
     key,
-    encrypted
+    encrypted as BufferSource
   );
   
   return JSON.parse(new TextDecoder().decode(decrypted));
