@@ -9,7 +9,7 @@
  * Generate EdDSA keypair for commitments (client-side)
  * Similar to Poseidon but using our own implementation
  */
-export function generateEdDSAKeypair(): { publicKey: string; privateKey: string } {
+export async function generateEdDSAKeypair(): Promise<{ publicKey: string; privateKey: string }> {
   // Generate random 32-byte private key
   const privateKeyBytes = new Uint8Array(32);
   crypto.getRandomValues(privateKeyBytes);
