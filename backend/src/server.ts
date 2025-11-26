@@ -43,6 +43,11 @@ app.options('*', cors(corsOptions));
 // Routes
 app.use('/api/swap', swapRoutes);
 
+// Test route to verify routing works
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API routing is working', timestamp: new Date().toISOString() });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
