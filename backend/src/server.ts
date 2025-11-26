@@ -24,10 +24,21 @@ const corsOptions = {
     ? process.env.FRONTEND_URL || '*' // Allow specific frontend URL or all in production
     : '*', // Allow all in development
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Origin: ${req.headers.origin || 'none'}`);
+  next();
+});
+
+// Explicitly handle OPTIONS requests for all routes
+app.options('*', cors(corsOptions));
 
 // Routes
 app.use('/api/swap', swapRoutes);
