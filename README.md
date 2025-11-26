@@ -1,147 +1,232 @@
 # Zurix - Private Solana Transfers
 
-A privacy-focused Solana wallet transfer application that allows users to move funds between wallets without being tracked by snipers or blockchain analysis tools. Built with Next.js and Solana Web3.js.
+A privacy-focused Solana transaction protocol enabling private transfers through advanced mixing pools, multi-hop routing, and cryptographic guarantees. The system breaks transaction links between source and destination addresses while maintaining usability.
 
-## Features
+## Overview
 
-- 🔒 **Advanced Private Transfers**: Multi-hop routing through 2-3 intermediate wallets with randomized delays
-- 🛡️ **Enhanced Privacy**: Breaks transaction links at multiple points, making tracking extremely difficult
-- ⏱️ **Randomized Timing**: Variable delays (3-20 seconds) break timing correlation patterns
-- 👛 **Wallet Integration**: Support for Phantom, Solflare, and other Solana wallets
-- 📊 **Transaction Tracking**: Real-time progress tracking for multi-step privacy swaps
-- 🎨 **Modern UI**: Beautiful, responsive interface with dark mode support
-- ⚡ **Built with Next.js**: Fast, modern web application framework
+Zurix implements a sophisticated privacy protocol inspired by Elusiv's mixing pool architecture:
 
-## How It Works
+- **Mixing Pool Architecture**: Decouples deposits and withdrawals to break direct links
+- **Time-Based Windows**: Groups transactions into 60s windows to increase anonymity sets
+- **Multi-Note Splitting**: Splits funds into 6-8 smaller notes with different paths
+- **Amount Obfuscation**: Adds ±0.001 SOL random adjustments to break correlation
+- **Multi-Hop Routing**: Funds pass through 2-3 intermediate wallets with randomized delays
+- **Temporal Obfuscation**: 10-40s delays break timing correlation
 
-The application implements an advanced multi-hop privacy mechanism:
+## Key Features
 
-1. **Source Validation**: Validates the source wallet and checks balance
-2. **First Intermediate Wallet**: User sends funds to first intermediate wallet
-3. **Multi-Hop Routing**: Funds are routed through 2-3 intermediate wallets (randomly chosen)
-   - Each hop includes randomized delays (3-20 seconds)
-   - 70% of transactions use 3 hops for maximum privacy
-4. **Privacy Delays**: Variable delays between hops break timing correlation
-5. **Destination Transfer**: Final transfer to the destination wallet
-6. **Verification**: Confirms transaction completion
+### Privacy Mechanisms
 
-This enhanced approach ensures that:
-- **Multiple break points**: 2-3 intermediate wallets break the connection at multiple points
-- **Randomized routing**: Variable hop count (2-3) prevents pattern detection
-- **Timing obfuscation**: Randomized delays (3-20s) break timing correlation
-- **Single-use wallets**: Each intermediate wallet is used only once
-- **Strong protection**: Much harder to track than single-hop systems
-- **Sniper protection**: Multiple hops make wallet movements difficult to follow
+- **Mixing Pools**: Deposit and withdrawal wallets are completely separate, breaking transaction links
+- **Time-Based Windows**: Transactions grouped in 60-second mixing windows
+- **Multi-Note Protocol**: Amounts split into 6-8 notes (default 6, max 8, min 2)
+- **Amount Obfuscation**: Random ±0.001 SOL adjustments prevent amount correlation
+- **Multi-Hop Routing**: 2-3 intermediate wallets with 5-20s randomized delays
+- **End-to-End Encryption**: AES-256-GCM with PBKDF2 key derivation for transaction memos
+
+### Security Features
+
+- **Immutable Configuration**: Hardcoded fees and limits ensure trustlessness
+- **Emergency Recovery**: Time-based fallback and deposit threshold recovery
+- **Encrypted Storage**: All private keys encrypted with AES-256-GCM
+- **Client-Side Decryption**: Recovery keys never leave the client
+
+### Immutable Configuration
+
+- **Relayer Fee**: 0.05% (hardcoded, cannot be changed)
+- **Deposit Fee**: 0% (free deposits)
+- **Minimum Amount**: 0.03 SOL
+- **Maximum Notes**: 8 per transaction
+- **Default Notes**: 6 per transaction
+- **Mixing Window**: 60 seconds
+
+## Architecture
+
+The system consists of:
+
+1. **Backend Service Layer**: Express.js API managing transactions
+2. **Wallet Management Service**: Generates and manages intermediate wallets
+3. **Privacy Coordination Engine**: Handles mixing pools, routing, and delays
+4. **PostgreSQL Database**: Stores transactions, wallets, and mixing windows
+
+### Transaction Flow
+
+1. **Preparation**: Client calls API, backend generates encrypted intermediate wallet
+2. **Deposit**: User sends SOL, system verifies on-chain and initiates swap
+3. **Splitting & Mixing**: Amount split into 6-8 notes, assigned to 60s mixing window
+4. **Withdrawal**: Delayed withdrawal with randomized amounts and multi-hop routing
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm or yarn
-- A Solana wallet (Phantom, Solflare, etc.)
+- Node.js 18+
+- PostgreSQL database
+- Solana wallet (Phantom, Solflare, etc.)
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository**:
 ```bash
 git clone <your-repo-url>
 cd privacy
 ```
 
-2. Install dependencies:
+2. **Install dependencies**:
 ```bash
+# Frontend
+npm install
+
+# Backend
+cd backend
 npm install
 ```
 
-3. Run the development server:
+3. **Configure environment variables**:
 ```bash
+# Backend - see backend/env.template
+DATABASE_URL=postgresql://...
+ENCRYPTION_KEY=<64-char-hex-key>
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+RELAYER_FEE_WALLET=<your-wallet>
+TREASURY_WALLET_PRIVATE_KEY=<your-key>
+USE_ENHANCED_PRIVACY=true
+
+# Frontend
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_SOLANA_NETWORK=mainnet
+```
+
+4. **Start development servers**:
+```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev
+
+# Terminal 2 - Frontend
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. **Open** [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Project Structure
 
 ```
 privacy/
-├── src/
+├── src/                          # Frontend (Next.js)
 │   ├── app/
-│   │   ├── layout.tsx          # Root layout with wallet providers
-│   │   ├── page.tsx             # Main page
-│   │   └── globals.css          # Global styles
+│   │   ├── docs/                 # Documentation page
+│   │   ├── layout.tsx            # Root layout
+│   │   ├── page.tsx              # Main page
+│   │   └── globals.css           # Global styles
 │   └── components/
-│       ├── WalletProvider.tsx   # Solana wallet adapter setup
-│       ├── Providers.tsx        # Client component wrapper
-│       └── PrivateSwap.tsx      # Main swap interface
-├── public/                      # Static assets
+│       ├── TransferCard.tsx       # Main transfer interface
+│       ├── WalletProvider.tsx    # Solana wallet adapter
+│       └── ...
+├── backend/                       # Backend service
+│   ├── src/
+│   │   ├── config/               # Database, Solana, constants
+│   │   ├── controllers/          # API controllers
+│   │   ├── routes/               # Express routes
+│   │   ├── services/              # Business logic
+│   │   │   ├── privacyService.ts
+│   │   │   ├── enhancedPrivacyService.ts
+│   │   │   ├── walletService.ts
+│   │   │   └── ...
+│   │   └── server.ts             # Express server
+│   └── env.template              # Environment variables template
 └── package.json
 ```
 
-## Important Notes
+## API Reference
 
-### Backend Setup
+### Endpoints
 
-The application requires a backend service for full functionality:
+- `GET /health` - Health check
+- `GET /api/swap/config` - Get immutable configuration
+- `POST /api/swap/prepare` - Prepare swap (get intermediate wallet)
+- `POST /api/swap/initiate` - Initiate swap after deposit
+- `GET /api/swap/status/:transactionId` - Get transaction status
+- `GET /api/swap/recovery/:transactionId` - Check recovery availability
+- `POST /api/swap/recovery/:transactionId` - Execute emergency recovery
 
-1. **Backend Service**: 
-   - Manages intermediate privacy wallets
-   - Handles the actual fund routing
-   - Implements secure key management
-   - PostgreSQL database for transaction tracking
+## Database Schema
 
-2. **Environment Variables**:
-   - See `backend/env.template` for required configuration
-   - Set up database connection
-   - Configure Solana RPC endpoint
-   - Set encryption keys
-
-3. **Deployment**:
-   - Backend can be deployed to Railway, Render, or similar
-   - Frontend can be deployed to Vercel or Railway
+- `intermediate_wallets` - Encrypted intermediate wallet keypairs
+- `swap_transactions` - Transaction records and status
+- `mixing_windows` - Time-based mixing window tracking
+- `encrypted_memos` - End-to-end encrypted transaction memos
+- `recovery_tracking` - Emergency recovery state
+- `deposit_counter` - Global deposit counter for recovery
 
 ## Technology Stack
 
+### Frontend
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Blockchain**: Solana Web3.js
 - **Wallets**: Solana Wallet Adapter
 
+### Backend
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Database**: PostgreSQL
+- **Blockchain**: Solana Web3.js
+- **Encryption**: AES-256-GCM
+
 ## Development
 
 ### Available Scripts
 
+**Frontend:**
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+
+**Backend:**
+- `npm run dev` - Start development server (nodemon)
+- `npm run build` - Compile TypeScript
+- `npm run start` - Start production server
+
+## Deployment
+
+### Backend (Railway/Render)
+- Set root directory to `backend`
+- Build command: `npm install && npm run build`
+- Start command: `npm start`
+- Add all environment variables from `backend/env.template`
+
+### Frontend (Vercel/Railway)
+- Framework: Next.js (auto-detected)
+- Build command: `npm run build`
+- Add `NEXT_PUBLIC_API_URL` environment variable
+
+## Documentation
+
+For complete technical documentation, visit `/docs` in the application or see the documentation page source at `src/app/docs/page.tsx`.
+
+The documentation covers:
+- System Architecture
+- Privacy Mechanisms
+- Multi-Note Mixing Protocol
+- Multi-Hop Routing
+- Emergency Recovery System
+- End-to-End Encryption
+- Immutable Configuration
+- Wallet Management
+- API Reference
+- Security Model
 
 ## Security Considerations
 
-⚠️ **This is a demonstration project**. Before deploying to production:
+**Important**: This is production-ready code but should be audited before handling significant funds.
 
-- Implement proper backend infrastructure
-- Add comprehensive security measures
-- Conduct security audits
-- Ensure regulatory compliance
-- Test thoroughly on devnet before mainnet
-
-## Privacy Features
-
-**Key Privacy Improvements:**
-- ✅ Multi-hop routing (2-3 intermediate wallets)
-- ✅ Randomized delays (3-20 seconds)
-- ✅ Variable routing (prevents pattern detection)
-- ✅ Single-use wallets (no connection between swaps)
-- ✅ Enhanced mixing pools with time-based windows
-- ✅ Amount splitting and obfuscation
-
-## References
-
-- [Houdini Swap Documentation](https://docs.houdiniswap.com/houdini-swap)
-- [Solana Web3.js Documentation](https://solana-labs.github.io/solana-web3.js/)
-- [Solana Wallet Adapter](https://github.com/solana-labs/wallet-adapter)
+- All private keys are encrypted with AES-256-GCM
+- Configuration is immutable (hardcoded)
+- Emergency recovery system for edge cases
+- Client-side key generation and decryption
+- No server-side access to recovery keys
 
 ## License
 
@@ -149,4 +234,4 @@ MIT
 
 ## Disclaimer
 
-This software is provided for educational and demonstration purposes. Use at your own risk. The authors are not responsible for any losses or damages resulting from the use of this software.
+This software is provided as-is. Use at your own risk. The authors are not responsible for any losses or damages resulting from the use of this software.
