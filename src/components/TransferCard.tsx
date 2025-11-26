@@ -8,6 +8,12 @@ import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana
 // Backend API URL - defaults to localhost:3001 in development
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+// Log the API URL on component mount (for debugging)
+if (typeof window !== 'undefined') {
+  console.log('🔗 API Base URL:', API_BASE_URL);
+  console.log('🔗 Environment variable NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL || 'NOT SET');
+}
+
 interface SwapStep {
   step: number;
   description: string;
@@ -332,8 +338,11 @@ export default function TransferCard() {
       steps[1].status = 'processing';
       setSwapSteps([...steps]);
       
-      console.log('Preparing swap with backend:', `${API_BASE_URL}/api/swap/prepare`);
-      const prepareResponse = await fetch(`${API_BASE_URL}/api/swap/prepare`, {
+      const prepareUrl = `${API_BASE_URL}/api/swap/prepare`;
+      console.log('📤 Preparing swap with backend:', prepareUrl);
+      console.log('📤 Request body:', { sourceWallet: currentPublicKey.toString(), destinationWallet, amount: amountNum });
+      
+      const prepareResponse = await fetch(prepareUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -345,10 +354,14 @@ export default function TransferCard() {
         }),
       });
 
+      console.log('📥 Prepare response status:', prepareResponse.status, prepareResponse.statusText);
+      console.log('📥 Prepare response headers:', Object.fromEntries(prepareResponse.headers.entries()));
+      
       if (!prepareResponse.ok) {
         let errorMessage = 'Failed to prepare swap';
         try {
           const errorText = await prepareResponse.text();
+          console.log('📥 Error response body:', errorText);
           if (errorText) {
             try {
               const errorData = JSON.parse(errorText);
@@ -357,7 +370,8 @@ export default function TransferCard() {
               errorMessage = errorText || errorMessage;
             }
           }
-        } catch {
+        } catch (e) {
+          console.error('📥 Error parsing error response:', e);
           errorMessage = `Backend returned ${prepareResponse.status}: ${prepareResponse.statusText}`;
         }
         throw new Error(errorMessage);

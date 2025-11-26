@@ -86,7 +86,7 @@ export default function Home() {
               Legacy
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/ZurixApp/Zurix"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-white transition-colors duration-300"
@@ -243,6 +243,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600 tracking-[0.2em] uppercase">
             <div className="mb-4 md:mb-0">Zurix © 2025</div>
             <div className="flex space-x-8">
+              <a href="https://github.com/ZurixApp/Zurix" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a>
               <a href="#" className="hover:text-white transition-colors">Legal</a>
               <a href="#" className="hover:text-white transition-colors">Privacy</a>
               <a href="#" className="hover:text-white transition-colors">Zurich</a>
