@@ -2,7 +2,7 @@
 
 A privacy-focused Solana transaction protocol enabling private transfers through advanced mixing pools, multi-hop routing, and cryptographic guarantees. The system breaks transaction links between source and destination addresses while maintaining usability.
 
-**Contract Address:** [To be deployed]
+**Contract Address:** FE8M5QPGMy6ai1sBMGFLkesNBvPURniZ9uoDELEpump
 
 ## Overview
 

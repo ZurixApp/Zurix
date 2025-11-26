@@ -173,7 +173,7 @@ export default function DocsPage() {
                 Complete technical documentation for Zurix's private swap protocol, featuring advanced mixing pools and cryptographic privacy guarantees.
               </p>
               <p className="text-sm text-gray-500 mt-4 font-light">
-                Contract Address: <span className="text-wine-400 font-mono">[To be deployed]</span>
+                Contract Address: <span className="text-wine-400 font-mono">FE8M5QPGMy6ai1sBMGFLkesNBvPURniZ9uoDELEpump</span>
               </p>
             </motion.div>
 
