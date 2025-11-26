@@ -129,11 +129,17 @@ export default function Home() {
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-wine-900/40 to-transparent translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
               </a>
-              <button className="group relative px-10 py-5 overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md transition-all hover:border-wine-500/40">
+              <a 
+                href="https://x.com/zurixapp" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group relative px-10 py-5 overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md transition-all hover:border-wine-500/40"
+              >
                 <span className="relative z-10 text-[10px] tracking-[0.3em] uppercase group-hover:text-white transition-colors">
                   <i className="fa-brands fa-x-twitter"></i> Follow
                 </span>
-              </button>
+                <div className="absolute inset-0 bg-gradient-to-r from-wine-900/40 to-transparent translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
+              </a>
             </div>
           </div>
 

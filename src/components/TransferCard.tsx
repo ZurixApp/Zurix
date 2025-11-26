@@ -6,13 +6,24 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 // Backend API URL - defaults to localhost:3001 in development
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// Ensure URL has protocol (https:// or http://)
+const getApiBaseUrl = () => {
+  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  // If URL doesn't start with http:// or https://, add https://
+  if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+    return `https://${url}`;
+  }
+  return url;
+};
+const API_BASE_URL = getApiBaseUrl();
 
-// Log the API URL on component mount (for debugging)
-if (typeof window !== 'undefined') {
-  console.log('🔗 API Base URL:', API_BASE_URL);
-  console.log('🔗 Environment variable NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL || 'NOT SET');
-}
+// Only log in development
+const isDev = process.env.NODE_ENV === 'development';
+const debugLog = (...args: any[]) => {
+  if (isDev) {
+    console.log(...args);
+  }
+};
 
 interface SwapStep {
   step: number;
@@ -339,8 +350,7 @@ export default function TransferCard() {
       setSwapSteps([...steps]);
       
       const prepareUrl = `${API_BASE_URL}/api/swap/prepare`;
-      console.log('📤 Preparing swap with backend:', prepareUrl);
-      console.log('📤 Request body:', { sourceWallet: currentPublicKey.toString(), destinationWallet, amount: amountNum });
+      debugLog('📤 Preparing swap with backend:', prepareUrl);
       
       const prepareResponse = await fetch(prepareUrl, {
         method: 'POST',
@@ -354,14 +364,11 @@ export default function TransferCard() {
         }),
       });
 
-      console.log('📥 Prepare response status:', prepareResponse.status, prepareResponse.statusText);
-      console.log('📥 Prepare response headers:', Object.fromEntries(prepareResponse.headers.entries()));
-      
       if (!prepareResponse.ok) {
         let errorMessage = 'Failed to prepare swap';
         try {
           const errorText = await prepareResponse.text();
-          console.log('📥 Error response body:', errorText);
+          debugLog('📥 Error response body:', errorText);
           if (errorText) {
             try {
               const errorData = JSON.parse(errorText);
@@ -371,7 +378,7 @@ export default function TransferCard() {
             }
           }
         } catch (e) {
-          console.error('📥 Error parsing error response:', e);
+          debugLog('📥 Error parsing error response:', e);
           errorMessage = `Backend returned ${prepareResponse.status}: ${prepareResponse.statusText}`;
         }
         throw new Error(errorMessage);
@@ -389,7 +396,7 @@ export default function TransferCard() {
       if (prepareData.recovery?.recoveryKey) {
         // Store in sessionStorage (user should save this)
         sessionStorage.setItem(`recovery_${intermediateWalletId}`, prepareData.recovery.recoveryKey);
-        console.log('🔑 Recovery key generated - save this securely!');
+        debugLog('🔑 Recovery key generated - save this securely!');
       }
       
       steps[1].status = 'completed';
@@ -434,7 +441,7 @@ export default function TransferCard() {
           throw new Error('Wallet sendTransaction is not available. Please reconnect your wallet.');
         }
         
-        console.log('Sending transaction to wallet...', {
+        debugLog('Sending transaction to wallet...', {
           from: finalPublicKey.toString(),
           to: intermediateWalletPubkey.toString(),
           amount: amountLamports,
@@ -445,7 +452,7 @@ export default function TransferCard() {
           skipPreflight: false,
         });
         
-        console.log('Transaction sent, signature:', signature1);
+        debugLog('Transaction sent, signature:', signature1);
       } catch (error: any) {
         const errorMessage = error?.message || error?.toString() || '';
         const errorString = String(errorMessage).toLowerCase();

@@ -18,6 +18,12 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "ZURIX | Sovereign Wealth",
   description: "Swiss sovereignty meets cryptographic security on Solana. Private banking redefined.",
+  icons: {
+    icon: [
+      { url: '/zurix.png', sizes: 'any' },
+    ],
+    apple: '/zurix.png',
+  },
 };
 
 export default function RootLayout({
