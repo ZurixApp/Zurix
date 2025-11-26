@@ -38,20 +38,11 @@ export function WalletContextProvider({ children }: { children: React.ReactNode 
         new SolflareWalletAdapter(),
       ];
       
-      // Filter to ensure:
-      // 1. No duplicates (by wallet name)
-      // 2. Only Solana wallets (exclude Ethereum wallets like MetaMask)
+      // Filter to ensure no duplicates (by wallet name)
+      // Note: We only create Solana wallets (Phantom, Solflare), so no need to filter Ethereum wallets
       const seenNames = new Set<string>();
       const uniqueWallets = walletAdapters.filter((wallet) => {
         const walletName = wallet.name;
-        
-        // Exclude Ethereum wallets
-        if (walletName === 'MetaMask' || 
-            walletName === 'Ethereum' ||
-            walletName.toLowerCase().includes('ethereum') ||
-            walletName.toLowerCase().includes('metamask')) {
-          return false;
-        }
         
         // Check for duplicates
         if (seenNames.has(walletName)) {
