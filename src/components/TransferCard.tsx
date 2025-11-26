@@ -86,8 +86,16 @@ export default function TransferCard() {
           return;
         }
 
-        const statusData = await statusResponse.json();
-        if (statusData.success && statusData.transaction) {
+        let statusData;
+        try {
+          const text = await statusResponse.text();
+          statusData = text ? JSON.parse(text) : null;
+        } catch (e) {
+          console.error('Failed to parse status response:', e);
+          return;
+        }
+        
+        if (statusData && statusData.success && statusData.transaction) {
           const txStatus = statusData.transaction.status;
           setTransactionStatus(txStatus);
 
@@ -324,6 +332,7 @@ export default function TransferCard() {
       steps[1].status = 'processing';
       setSwapSteps([...steps]);
       
+      console.log('Preparing swap with backend:', `${API_BASE_URL}/api/swap/prepare`);
       const prepareResponse = await fetch(`${API_BASE_URL}/api/swap/prepare`, {
         method: 'POST',
         headers: {
@@ -337,8 +346,21 @@ export default function TransferCard() {
       });
 
       if (!prepareResponse.ok) {
-        const errorData = await prepareResponse.json();
-        throw new Error(errorData.error || 'Failed to prepare swap');
+        let errorMessage = 'Failed to prepare swap';
+        try {
+          const errorText = await prepareResponse.text();
+          if (errorText) {
+            try {
+              const errorData = JSON.parse(errorText);
+              errorMessage = errorData.error || errorMessage;
+            } catch {
+              errorMessage = errorText || errorMessage;
+            }
+          }
+        } catch {
+          errorMessage = `Backend returned ${prepareResponse.status}: ${prepareResponse.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const prepareData = await prepareResponse.json();
@@ -461,8 +483,21 @@ export default function TransferCard() {
       });
 
       if (!initiateResponse.ok) {
-        const errorData = await initiateResponse.json();
-        throw new Error(errorData.error || 'Failed to initiate swap');
+        let errorMessage = 'Failed to initiate swap';
+        try {
+          const errorText = await initiateResponse.text();
+          if (errorText) {
+            try {
+              const errorData = JSON.parse(errorText);
+              errorMessage = errorData.error || errorMessage;
+            } catch {
+              errorMessage = errorText || errorMessage;
+            }
+          }
+        } catch {
+          errorMessage = `Backend returned ${initiateResponse.status}: ${initiateResponse.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const initiateData = await initiateResponse.json();
@@ -489,8 +524,16 @@ export default function TransferCard() {
             return false;
           }
           
-          const statusData = await statusResponse.json();
-          if (statusData.success && statusData.transaction) {
+          let statusData;
+          try {
+            const text = await statusResponse.text();
+            statusData = text ? JSON.parse(text) : null;
+          } catch (e) {
+            console.error('Failed to parse status response:', e);
+            return;
+          }
+          
+          if (statusData && statusData.success && statusData.transaction) {
             const txStatus = statusData.transaction.status;
             
             if (txStatus === 'completed') {
