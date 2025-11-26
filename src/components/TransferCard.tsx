@@ -530,7 +530,7 @@ export default function TransferCard() {
             statusData = text ? JSON.parse(text) : null;
           } catch (e) {
             console.error('Failed to parse status response:', e);
-            return;
+            return false;
           }
           
           if (statusData && statusData.success && statusData.transaction) {
