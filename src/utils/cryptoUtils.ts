@@ -22,7 +22,7 @@ export function generateEdDSAKeypair(): { publicKey: string; privateKey: string 
   
   // In a real implementation, derive public key from private key using EdDSA
   // For now, we'll use a hash-based approach (simplified)
-  const publicKeyHash = crypto.subtle.digest('SHA-256', privateKeyBytes);
+  const publicKeyHash = await crypto.subtle.digest('SHA-256', privateKeyBytes as BufferSource);
   
   return {
     privateKey: privateKey,
@@ -53,11 +53,13 @@ export async function createCommitment(
 ): Promise<{ commitment: string; nullifier: string }> {
   // Create commitment hash: H(amount || secret || nullifierSecret)
   const commitmentData = `${amount}:${secret}:${nullifierSecret}`;
-  const commitmentBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(commitmentData));
+  const commitmentDataBytes = new TextEncoder().encode(commitmentData);
+  const commitmentBuffer = await crypto.subtle.digest('SHA-256', commitmentDataBytes as BufferSource);
   
   // Create nullifier: H(nullifierSecret || index)
   const nullifierData = `${nullifierSecret}:${Date.now()}`;
-  const nullifierBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(nullifierData));
+  const nullifierDataBytes = new TextEncoder().encode(nullifierData);
+  const nullifierBuffer = await crypto.subtle.digest('SHA-256', nullifierDataBytes as BufferSource);
   
   return {
     commitment: '0x' + Array.from(new Uint8Array(commitmentBuffer))
