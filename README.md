@@ -2,6 +2,8 @@
 
 A privacy-focused Solana transaction protocol enabling private transfers through advanced mixing pools, multi-hop routing, and cryptographic guarantees. The system breaks transaction links between source and destination addresses while maintaining usability.
 
+**Contract Address:** [To be deployed]
+
 ## Overview
 
 Zurix implements a sophisticated privacy protocol inspired by Elusiv's mixing pool architecture:

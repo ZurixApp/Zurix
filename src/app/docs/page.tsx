@@ -165,6 +165,9 @@ export default function DocsPage() {
               <p className="text-xl text-gray-400 leading-relaxed font-light max-w-2xl">
                 Complete technical documentation for Zurix's private swap protocol, featuring advanced mixing pools and cryptographic privacy guarantees.
               </p>
+              <p className="text-sm text-gray-500 mt-4 font-light">
+                Contract Address: <span className="text-wine-400 font-mono">[To be deployed]</span>
+              </p>
             </motion.div>
 
             {/* Overview */}
